@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 
-from models.response import Response
+from models.domain.response import Response
 
 
 @dataclass
