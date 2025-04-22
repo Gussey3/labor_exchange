@@ -41,30 +41,6 @@ async def read_jobs(
     return job_schemas
 
 
-@router.get("/{job_id}")
-@inject
-async def read_job(
-    job_id: int,
-    job_repository: JobRepository = Depends(
-        Provide[RepositoriesContainer.job_repository]
-    ),
-) -> JobSchema:
-
-    job_model = await job_repository.retrieve(id=job_id)
-
-    job_schema = JobSchema(
-        id=job_model.id,
-        user_id=job_model.user_id,
-        title=job_model.title,
-        description=job_model.description,
-        salary_from=job_model.salary_from,
-        salary_to=job_model.salary_to,
-        is_active=job_model.is_active,
-    )
-
-    return job_schema
-
-
 @router.post("")
 @inject
 async def create_job(
@@ -85,6 +61,7 @@ async def create_job(
     )
 
     job = await job_repository.create(job_create_dto)
+
     return JobSchema(**asdict(job))
 
 
@@ -114,12 +91,13 @@ async def update_job(
         )
 
         updated_job = await job_repository.update(job_update_schema.id, job_update_dto)
-        return JobSchema(**asdict(updated_job))
 
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Вакансия не найдена"
         )
+
+    return JobSchema(**asdict(updated_job))
 
 
 @router.delete("/{id}")
