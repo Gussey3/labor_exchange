@@ -11,5 +11,7 @@ class ResponseFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     id = factory.Sequence(lambda n: n)
     user = factory.SubFactory(UserFactory)
+    user_id = factory.SelfAttribute("user.id")
     job = factory.SubFactory(JobFactory)
+    job_id = factory.SelfAttribute("job.id")
     message = factory.Faker("sentence")

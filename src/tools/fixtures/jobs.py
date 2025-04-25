@@ -12,6 +12,7 @@ class JobFactory(factory.alchemy.SQLAlchemyModelFactory):
 
     id = factory.Sequence(lambda n: n)
     user = factory.SubFactory(UserFactory)
+    user_id = factory.SelfAttribute("user.id")
     title = factory.Faker("job")
     description = factory.Faker("sentence")
     salary_from = factory.Faker("numerify", text="###000")
