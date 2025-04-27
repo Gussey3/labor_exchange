@@ -5,6 +5,10 @@ from models.domain.response import Response
 
 @dataclass
 class Job:
+    """
+    Модель вакансии
+    """
+
     id: int
     user_id: int
     title: str
