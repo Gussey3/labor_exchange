@@ -26,7 +26,7 @@ class ResponseRepository(IRepositoryAsync):
             await session.commit()
             await session.refresh(response)
 
-        return self.__to_response_model(response_from_db=response)
+        return self._to_response_model(response_from_db=response)
 
     async def retrieve(self, **kwargs) -> ResponseModel:
         async with self.session() as session:
@@ -35,7 +35,7 @@ class ResponseRepository(IRepositoryAsync):
             res = await session.execute(query)
             response_from_db = res.scalars().first()
 
-        response_model = self.__to_response_model(response_from_db=response_from_db)
+        response_model = self._to_response_model(response_from_db=response_from_db)
         return response_model
 
     async def retrieve_many(self, limit: int = 100, skip: int = 0) -> list[ResponseModel]:
@@ -47,7 +47,7 @@ class ResponseRepository(IRepositoryAsync):
 
         response_models = []
         for response in responses_from_db:
-            model = self.__to_response_model(response_from_db=response)
+            model = self._to_response_model(response_from_db=response)
             response_models.append(model)
 
         return response_models
@@ -67,7 +67,7 @@ class ResponseRepository(IRepositoryAsync):
             await session.commit()
             await session.refresh(response_from_db)
 
-        new_response = self.__to_response_model(response_from_db=response_from_db)
+        new_response = self._to_response_model(response_from_db=response_from_db)
         return new_response
 
     async def delete(self, id: int):
@@ -82,10 +82,9 @@ class ResponseRepository(IRepositoryAsync):
             else:
                 raise ValueError("Отклик не найден")
 
-        return self.__to_response_model(response_from_db=response_from_db)
+        return self._to_response_model(response_from_db=response_from_db)
 
-    @staticmethod
-    def __to_response_model(response_from_db: Response) -> ResponseModel:
+    def _to_response_model(self, response_from_db: Response) -> ResponseModel:
         response_model = None
 
         if response_from_db:
