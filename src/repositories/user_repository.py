@@ -29,7 +29,7 @@ class UserRepository(IRepositoryAsync):
             await session.commit()
             await session.refresh(user)
 
-        return self.__to_user_model(user_from_db=user, include_relations=False)
+        return self._to_user_model(user_from_db=user, include_relations=False)
 
     async def retrieve(self, include_relations: bool = False, **kwargs) -> UserModel:
         async with self.session() as session:
@@ -40,7 +40,7 @@ class UserRepository(IRepositoryAsync):
             res = await session.execute(query)
             user_from_db = res.scalars().first()
 
-        user_model = self.__to_user_model(
+        user_model = self._to_user_model(
             user_from_db=user_from_db, include_relations=include_relations
         )
         return user_model
@@ -58,7 +58,7 @@ class UserRepository(IRepositoryAsync):
 
         users_model = []
         for user in users_from_db:
-            model = self.__to_user_model(user_from_db=user, include_relations=include_relations)
+            model = self._to_user_model(user_from_db=user, include_relations=include_relations)
             users_model.append(model)
 
         return users_model
@@ -90,7 +90,7 @@ class UserRepository(IRepositoryAsync):
             await session.commit()
             await session.refresh(user_from_db)
 
-        new_user = self.__to_user_model(user_from_db, include_relations=False)
+        new_user = self._to_user_model(user_from_db, include_relations=False)
         return new_user
 
     async def delete(self, id: int):
@@ -105,10 +105,9 @@ class UserRepository(IRepositoryAsync):
             else:
                 raise ValueError("Пользователь не найден")
 
-        return self.__to_user_model(user_from_db, include_relations=False)
+        return self._to_user_model(user_from_db, include_relations=False)
 
-    @staticmethod
-    def __to_user_model(user_from_db: User, include_relations: bool = False) -> UserModel:
+    def _to_user_model(self, user_from_db: User, include_relations: bool = False) -> UserModel:
         user_jobs = []
         user_responses = []
         user_model = None
@@ -116,10 +115,28 @@ class UserRepository(IRepositoryAsync):
         if user_from_db:
             if include_relations:
                 if user_from_db.is_company:
-                    user_jobs = [JobModel(id=job.id) for job in user_from_db.jobs]
+                    user_jobs = [
+                        JobModel(
+                            id=job.id,
+                            user_id=job.user_id,
+                            title=job.title,
+                            description=job.description,
+                            salary_from=job.salary_from,
+                            salary_to=job.salary_to,
+                            is_active=job.is_active,
+                            responses=job.responses,
+                        )
+                        for job in user_from_db.jobs
+                    ]
                 else:
                     user_responses = [
-                        ResponseModel(id=response.id) for response in user_from_db.responses
+                        ResponseModel(
+                            id=response.id,
+                            job_id=response.job_id,
+                            user_id=response.user_id,
+                            message=response.message,
+                        )
+                        for response in user_from_db.responses
                     ]
 
             user_model = UserModel(

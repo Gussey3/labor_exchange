@@ -1,28 +1,37 @@
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, constr, model_validator
+from pydantic import BaseModel, EmailStr, constr, model_validator, Field
 from typing_extensions import Self
 
 
 class UserSchema(BaseModel):
-    id: Optional[int] = None
-    name: str
-    email: EmailStr
-    is_company: bool
+    """
+    Схема объекта пользователь
+    """
+    id: Optional[int] = Field(description="Идентификатор пользователя")
+    name: str = Field(description="Имя пользователя")
+    email: EmailStr = Field(description="Email адрес")
+    is_company: bool = Field(description="Флаг компании")
 
 
 class UserUpdateSchema(BaseModel):
-    name: Optional[str] = None
-    email: Optional[EmailStr] = None
-    is_company: Optional[bool] = None
+    """
+    Схема обновления объекта пользователь
+    """
+    name: Optional[str] = Field(description="Имя пользователя")
+    email: Optional[EmailStr] = Field(description="Email адрес")
+    is_company: Optional[bool] = Field(description="Флаг компании")
 
 
 class UserCreateSchema(BaseModel):
-    name: str
-    email: EmailStr
-    password: constr(min_length=8)
-    password2: str
-    is_company: bool = False
+    """
+    Схема создания объекта пользователь
+    """
+    name: str = Field(description="Имя пользователя")
+    email: EmailStr = Field(description="Email адрес")
+    password: constr(min_length=8) = Field(description="Пароль")
+    password2: str = Field(description="Повтор пароля")
+    is_company: bool = Field(default=False, description="Флаг компании")
 
     @model_validator(mode="after")
     def password_match(self) -> Self:
